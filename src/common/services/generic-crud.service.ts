@@ -1,6 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { paginate, paginateRaw } from 'nestjs-typeorm-paginate';
 import { Repository, DeepPartial, FindOptionsWhere, FindManyOptions, In, SelectQueryBuilder, UpdateResult, DeleteResult } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { PageMetaDto } from '../dto/page-meta.dto';
+import { PageOptionsDto } from '../dto/page-options.dto';
 
 @Injectable()
 export class GenericCrudService<T> {
@@ -108,5 +111,23 @@ export class GenericCrudService<T> {
   // Perform raw SQL query
   async performQuery(query: string, parameters?: any[]): Promise<any> {
     return await this.repository.query(query, parameters);
+  }
+
+  async paginate(queryBuilder: SelectQueryBuilder<T>, pageOptionsDto: Partial<PageOptionsDto>) {
+    const { items, meta } = await paginate(queryBuilder, {
+      page: pageOptionsDto.page,
+      limit: pageOptionsDto.take,
+    });
+
+    return { items, meta: new PageMetaDto(meta) };
+  }
+
+  async paginateRaw(queryBuilder: SelectQueryBuilder<T>, pageOptionsDto: Partial<PageOptionsDto>) {
+    const { items, meta } = await paginateRaw(queryBuilder, {
+      page: pageOptionsDto.page,
+      limit: pageOptionsDto.take,
+    });
+
+    return { items, meta: new PageMetaDto(meta) };
   }
 }
