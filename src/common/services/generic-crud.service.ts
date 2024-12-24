@@ -4,6 +4,7 @@ import { Repository, DeepPartial, FindOptionsWhere, FindManyOptions, In, SelectQ
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { PageMetaDto } from '../dto/page-meta.dto';
 import { PageOptionsDto } from '../dto/page-options.dto';
+import { PageDto } from '../dto/page.dto';
 
 @Injectable()
 export class GenericCrudService<T> {
@@ -113,21 +114,27 @@ export class GenericCrudService<T> {
     return await this.repository.query(query, parameters);
   }
 
-  async paginate(queryBuilder: SelectQueryBuilder<T>, pageOptionsDto: Partial<PageOptionsDto>) {
+  async paginate(
+    queryBuilder: SelectQueryBuilder<T>,
+    pageOptionsDto: Partial<PageOptionsDto>
+  ): Promise<PageDto<T>> {
     const { items, meta } = await paginate(queryBuilder, {
       page: pageOptionsDto.page,
       limit: pageOptionsDto.take,
     });
 
-    return { items, meta: new PageMetaDto(meta) };
+    return new PageDto(items, new PageMetaDto(meta));
   }
 
-  async paginateRaw(queryBuilder: SelectQueryBuilder<T>, pageOptionsDto: Partial<PageOptionsDto>) {
+  async paginateRaw(
+    queryBuilder: SelectQueryBuilder<T>, 
+    pageOptionsDto: Partial<PageOptionsDto>
+  ): Promise<PageDto<T>> {
     const { items, meta } = await paginateRaw(queryBuilder, {
       page: pageOptionsDto.page,
       limit: pageOptionsDto.take,
     });
 
-    return { items, meta: new PageMetaDto(meta) };
+    return new PageDto(items, new PageMetaDto(meta));
   }
 }
