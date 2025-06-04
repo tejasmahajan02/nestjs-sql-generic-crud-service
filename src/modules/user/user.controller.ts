@@ -1,11 +1,22 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CursorPaginationOptionsDto } from 'src/common/dto/cursor-pagination-options.dto';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
@@ -18,6 +29,11 @@ export class UserController {
     return await this.userService.findAll();
   }
 
+  @Get('/cursor-paginate')
+  async cursorPaginate(@Query() cursorPaginationOptionsDto: CursorPaginationOptionsDto) {
+    return await this.userService.cursorPaginate(cursorPaginationOptionsDto);
+  }
+
   @Get(':userId')
   async findOne(@Param('userId', new ParseUUIDPipe()) userId: string) {
     return await this.userService.findOne({ uuid: userId });
@@ -26,7 +42,7 @@ export class UserController {
   @Put(':userId')
   async updateOne(
     @Param('userId', new ParseUUIDPipe()) userId: string,
-    @Body() updateUserDto: UpdateUserDto
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     await this.userService.update({ uuid: userId }, updateUserDto);
     return await this.userService.findOne({ uuid: userId });
@@ -35,12 +51,12 @@ export class UserController {
   @Delete(':userId')
   async deleteOne(@Param('userId', new ParseUUIDPipe()) userId: string) {
     await this.userService.delete({ uuid: userId });
-    return "User deleted.";
+    return 'User deleted.';
   }
 
   @Delete()
   async deleteAll() {
     await this.userService.deleteAll();
-    return "All user deleted.";
+    return 'All user deleted.';
   }
 }
