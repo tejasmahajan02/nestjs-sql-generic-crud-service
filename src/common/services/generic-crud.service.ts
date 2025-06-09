@@ -208,6 +208,7 @@ export class GenericCrudService<T> {
   }: CursorPaginationOptionsDto): Promise<CursorPaginationDto<T>> {
     const qb = this.repository
       .createQueryBuilder()
+      // .cache(true) // This will cache the result in memory for default 1000ms (1s).
       .orderBy('"createdAt"', SortOrder.DESC)
       .addOrderBy('uuid', SortOrder.DESC) // This avoids pagination bugs caused by duplicate createdAt values
       .take(take + 1); // Fetch one extra to determine hasNextPage

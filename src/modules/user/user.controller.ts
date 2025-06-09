@@ -20,7 +20,7 @@ export class UserController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    await this.userService.isExist({ email: createUserDto.email });
+    // await this.userService.isExist({ email: createUserDto.email });
     return await this.userService.create(createUserDto);
   }
 
